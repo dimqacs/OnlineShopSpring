@@ -11,6 +11,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,5 +69,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Object> updateUserStatus(@PathVariable final Long id , @RequestBody @Validated final UserDTO userDTO){
+        try {
+            logger.info("Trying to update status for user with id " + id);
+            userService.update(id, userDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (EntityNotFoundException e){
+            logger.error("Error while updating status for user with id " + ", ERROR - ", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 
 }

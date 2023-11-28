@@ -37,7 +37,8 @@ public class UserService {
     }
 
     public UserDTO findById(Long id) throws ChangeSetPersister.NotFoundException {
-        final User user = userRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        final User user = userRepository.findById(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
         return mapToDTO(user, new UserDTO());
     }
 
@@ -55,4 +56,6 @@ public class UserService {
             throw new EntityNotFoundException("User not found with ID: " + id);
         }
     }
+
+
 }

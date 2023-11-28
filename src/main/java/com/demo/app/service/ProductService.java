@@ -18,7 +18,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private ProductDTO maptoDTO(final Product product,final ProductDTO productDTO){
+    private ProductDTO mapToDTO(final Product product,final ProductDTO productDTO){
         productDTO.setName(product.getName());
         productDTO.setYearOfProduction(product.getYearOfProduction());
         productDTO.setDetails(product.getDetails());
@@ -33,8 +33,9 @@ public class ProductService {
     }
 
     public ProductDTO findById(Long id) throws ChangeSetPersister.NotFoundException {
-        final Product product = productRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        return maptoDTO(product, new ProductDTO());
+        final Product product = productRepository.findById(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return mapToDTO(product, new ProductDTO());
     }
 
     public void deleteById(Long id){
