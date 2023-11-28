@@ -57,5 +57,17 @@ public class UserService {
         }
     }
 
+    public void update(Long id, UserDTO userDTO) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (userDTO.getRole() != null) {
+            User user = optionalUser.get();
+            user.setRole(userDTO.getRole());
+            userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + id);
+        }
+    }
+
 
 }

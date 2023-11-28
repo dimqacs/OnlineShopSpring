@@ -13,7 +13,7 @@ public class AppApplication {
 }
 
 /*
-Change Status for a user -
+Change Status for a user - done!
 Change Status for an order -
 Get Order Info -
 Get User Info - done!

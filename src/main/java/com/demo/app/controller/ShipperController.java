@@ -1,7 +1,6 @@
 package com.demo.app.controller;
 
 import com.demo.app.domain.Shipper;
-import com.demo.app.repository.ShipperRepository;
 import com.demo.app.service.ShipperService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class ShipperController {
 
-    private final ShipperRepository shipperRepository;
     private final ShipperService shipperService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

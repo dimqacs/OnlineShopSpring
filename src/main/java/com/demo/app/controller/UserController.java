@@ -1,7 +1,6 @@
 package com.demo.app.controller;
 
 import com.demo.app.model.UserDTO;
-import com.demo.app.repository.UserRepository;
 import com.demo.app.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserController {
 
-    private UserRepository userRepository;
     private UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -77,7 +75,7 @@ public class UserController {
             userService.update(id, userDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException e){
-            logger.error("Error while updating status for user with id " + ", ERROR - ", e);
+            logger.error("Error while updating status for user with id " + id + ", ERROR - ", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }

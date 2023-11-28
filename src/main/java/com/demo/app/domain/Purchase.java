@@ -17,6 +17,7 @@ public class Purchase {
     @Column(nullable = false, updatable = false)
     private Long id;
 
+    @Column(columnDefinition = "DEFAULT 'Not Delivered'")
     private String status;
 
     @Column(nullable = false, updatable = false, columnDefinition = "FLOAT DEFAULT 0.0")
@@ -28,4 +29,9 @@ public class Purchase {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Purchase() {
+        this.status = "Not Delivered";
+        this.total = 0.0f;
+    }
 }

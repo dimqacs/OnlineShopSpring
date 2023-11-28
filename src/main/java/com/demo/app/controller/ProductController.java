@@ -1,7 +1,6 @@
 package com.demo.app.controller;
 
 import com.demo.app.model.ProductDTO;
-import com.demo.app.repository.ProductRepository;
 import com.demo.app.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class ProductController {
 
-    private ProductRepository productRepository;
     private ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

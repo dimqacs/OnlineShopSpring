@@ -1,6 +1,5 @@
 package com.demo.app.controller;
 
-import com.demo.app.repository.CategoryRepository;
 import com.demo.app.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
     private final CategoryService categoryService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

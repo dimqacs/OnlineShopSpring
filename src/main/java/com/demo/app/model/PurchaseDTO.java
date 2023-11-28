@@ -21,5 +21,7 @@ public class PurchaseDTO {
 
     private String userSurname;
 
+    private String userLogin;
+
     private Integer userAge;
 }
