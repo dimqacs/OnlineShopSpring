@@ -6,13 +6,14 @@ import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @AllArgsConstructor
-public class UserDetailsImpl implements UserDetails{
+public class UserDetailsImpl implements UserDetails {
 
     private Long id;
 
@@ -22,7 +23,7 @@ public class UserDetailsImpl implements UserDetails{
 
     private String role;
 
-    public static UserDetailsImpl build(User user){
+    public static UserDetailsImpl build(User user) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getLogin(),
@@ -34,9 +35,7 @@ public class UserDetailsImpl implements UserDetails{
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        String role = "ROLE_" + this.role;
-
-        authorities.add(new SimpleGrantedAuthority(role));
+        authorities.add(new SimpleGrantedAuthority(this.role));
 
         authorities.forEach(authority -> System.out.println("User has role: " + authority.getAuthority()));
         return authorities;

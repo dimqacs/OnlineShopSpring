@@ -30,10 +30,11 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
-    public SecurityConfig(){}
+    public SecurityConfig() {
+    }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -52,21 +53,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(request ->
-                        new CorsConfiguration().applyPermitDefaultValues())
+                                new CorsConfiguration().applyPermitDefaultValues())
                 )
-                .exceptionHandling (exceptions -> exceptions
+                .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
-                .sessionManagement (session -> session
-                        .sessionCreationPolicy (SessionCreationPolicy.ALWAYS)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
                 )
-                .authorizeHttpRequests ((authorize) -> authorize
-                        .requestMatchers( "/auth/**").permitAll()
-                        .requestMatchers("/user/**", "/category/**", "/purchase/**","/shipper/**", "/product/**" ).hasAuthority("ADMIN")
-                        .requestMatchers("/onlineShop").hasAnyAuthority("USER","ADMIN")
+                .authorizeHttpRequests((authorize) -> authorize
+                                .requestMatchers("/user/**").hasAuthority("ADMIN")
+//                        .requestMatchers( "/auth/**").permitAll()
+//                        .requestMatchers("/user/**", "/category/**", "/purchase/**","/shipper/**", "/product/**" ).hasRole("ADMIN")
+//                        .requestMatchers("/onlineShop").hasAnyAuthority("USER","ADMIN")x
+                                .anyRequest().permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

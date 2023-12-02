@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
+
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
@@ -78,24 +80,34 @@ public class SecurityController {
     }
 
     @PostMapping("/signin")
-    ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO) throws ChangeSetPersister.NotFoundException {
-        Authentication authentication;
+    ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO, HttpServletRequest req) throws ChangeSetPersister.NotFoundException {
+        Authentication authentication = null;
 
         logger.info("Trying to authenticate.");
 
         try{
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getLogin(), signInDTO.getPassword()));
         } catch (BadCredentialsException e) {
-            logger.error("Incorrect password.");return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            logger.error("Incorrect password.");
+            return new ResponseEntity<>("Incorrect password.", HttpStatus.UNAUTHORIZED);
         }
 
-        UserDTO user = userService.findByLogin(signInDTO.getLogin());
-        userService.updateLastSeenDate(signInDTO.getLogin());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
-        return ResponseEntity.ok("User " + signInDTO.getLogin() + " successfully authenticated.");
+//        UserDTO user = userService.findByLogin(signInDTO.getLogin());
+//        userService.updateLastSeenDate(signInDTO.getLogin());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+//        logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
+////        return ResponseEntity.ok("User " + signInDTO.getLogin() + " successfully authenticated.");
+
+
+        SecurityContext sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(authentication);
+        HttpSession session = req.getSession(true);
+        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, sc);
+
+        return ResponseEntity.ok(authentication );
     }
 
     @PostMapping("/logout")
