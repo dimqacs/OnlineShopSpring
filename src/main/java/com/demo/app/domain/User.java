@@ -37,4 +37,9 @@ public class User {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime lastSeenDate;
+
+    public User (){
+        this.role = "user";
+        this.lastSeenDate = LocalDateTime.now();
+    }
 }

@@ -2,19 +2,24 @@ package com.demo.app.service;
 
 import com.demo.app.domain.User;
 import com.demo.app.model.UserDTO;
+import com.demo.app.model.UserDetailsImpl;
 import com.demo.app.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -67,6 +72,12 @@ public class UserService {
         } else {
             throw new EntityNotFoundException("User not found with ID: " + id);
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        final User user = userRepository.findByLogin(login);
+        return UserDetailsImpl.build(user);
     }
 
 
