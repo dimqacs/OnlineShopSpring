@@ -1,5 +1,6 @@
 package com.demo.app.controller;
 
+import com.demo.app.domain.Category;
 import com.demo.app.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
@@ -31,8 +32,16 @@ public class CategoryController {
         }
     }
 
-//    @PostMapping("/create")
-//    public ResponseEntity<?> createCategory(@RequestBody Category category){
-//
-//    }
+    @PostMapping("/create")
+    public ResponseEntity<?> createCategory(@RequestBody Category category){
+        try {
+            logger.info("Trying to create category with name " + category.getName() + ".");
+            categoryService.create(category);
+            return  ResponseEntity.ok("Category created.");
+        } catch (Exception e){
+            logger.error("Cant create category with name " + category.getName());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error while creating category" + e);
+        }
+    }
+
 }

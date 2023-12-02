@@ -9,11 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/onlineShop")
 @AllArgsConstructor
+@EnableGlobalAuthentication
 public class UserRoleController {
 
     private ProductService productService;

@@ -26,7 +26,7 @@ Delete a Product - done!
 Delete a Shipper - done!
 Delete a Category - done!
 Get All Orders by Status -
-Create a Category -
+Create a Category - done!
 Insert a new Product -
 Add product to Bag -
 Command Order -

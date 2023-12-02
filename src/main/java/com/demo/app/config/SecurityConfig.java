@@ -64,9 +64,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy (SessionCreationPolicy.ALWAYS)
                 )
                 .authorizeHttpRequests ((authorize) -> authorize
-                        .requestMatchers( "/auth/**").permitAll()
-                        .requestMatchers("/user/**", "/category/**", "/purchase/**","/shipper/**", "/product/**" ).hasAuthority("ADMIN")
-                        .requestMatchers("/onlineShop").hasAnyAuthority("USER","ADMIN")
+//                        .requestMatchers( "/auth/**").permitAll()
+//                        .requestMatchers("/user/**", "/category/**", "/purchase/**","/shipper/**", "/product/**" ).hasAuthority("ADMIN")
+//                        .requestMatchers("/onlineShop").hasAnyAuthority("USER","ADMIN")
+                        .anyRequest().permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
