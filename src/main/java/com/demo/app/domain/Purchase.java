@@ -20,7 +20,7 @@ public class Purchase {
     @Column(columnDefinition = "DEFAULT 'Not Delivered'")
     private String status;
 
-    @Column(nullable = false, updatable = false, columnDefinition = "FLOAT DEFAULT 0.0")
+    @Column(nullable = false, columnDefinition = "FLOAT DEFAULT 0.0")
     private Float total;
 
     @Column(nullable = false, updatable = false)

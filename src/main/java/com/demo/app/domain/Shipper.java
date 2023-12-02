@@ -16,7 +16,7 @@ public class Shipper {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, updatable = false)
@@ -25,6 +25,6 @@ public class Shipper {
     @Column(nullable = false, updatable = false)
     private Integer foundationYear;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String directorName;
 }

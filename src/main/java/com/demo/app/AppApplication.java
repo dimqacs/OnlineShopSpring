@@ -16,12 +16,12 @@ public class AppApplication {
 /*
 Change Status for a user - done!
 Change Status for an order - done!
-Get Order Info -
+Get Order Info - done!
 Get User Info - done!
 Get Product Info - done!
 Get Shipper Info - done!
 Delete an User - done!
-Delete an Order -
+Delete an Order - done!
 Delete a Product - done!
 Delete a Shipper - done!
 Delete a Category - done!
@@ -30,5 +30,6 @@ Create a Category -
 Insert a new Product -
 Add product to Bag -
 Command Order -
-Create User -
+Create User - done!
+Spring Security - done|
  */

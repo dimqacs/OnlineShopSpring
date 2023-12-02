@@ -52,6 +52,7 @@ public class UserService implements UserDetailsService {
         return mapToDTO(user, new UserDTO());
     }
 
+
     public void deleteById(Long id){
         Optional<User> user = userRepository.findById(id);
 
@@ -62,7 +63,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void update(Long id, UserDTO userDTO) {
+    public void updateRole(Long id, UserDTO userDTO) {
         Optional<User> optionalUser = userRepository.findById(id);
 
         if (userDTO.getRole() != null) {
@@ -71,6 +72,18 @@ public class UserService implements UserDetailsService {
             userRepository.save(user);
         } else {
             throw new EntityNotFoundException("User not found with ID: " + id);
+        }
+    }
+
+    public void updateLastSeenDate(String login) {
+        Optional<User> optionalUser = userRepository.findUserByLogin(login);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setLastSeenDate(LocalDateTime.now());
+            userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with login: " + login);
         }
     }
 

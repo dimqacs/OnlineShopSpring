@@ -14,18 +14,18 @@ public class Product {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Integer yearOfProduction;
 
     private String details;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Float price;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Integer count;
 
     @ManyToOne(fetch = FetchType.EAGER)

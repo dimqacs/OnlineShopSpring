@@ -20,17 +20,6 @@ public class ProductController {
     private ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable final Long id){
-        try {
-            logger.info("Sent info about product with id " + id);
-            return ResponseEntity.ok(productService.findById(id));
-        } catch (ChangeSetPersister.NotFoundException e) {
-            logger.error("Error while sending info about product with id " + id + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteProductById(@PathVariable final Long id){
         try {

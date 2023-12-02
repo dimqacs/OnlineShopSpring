@@ -6,25 +6,28 @@ import com.demo.app.model.SignUpDTO;
 import com.demo.app.model.UserDTO;
 import com.demo.app.repository.UserRepository;
 import com.demo.app.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,6 +46,9 @@ public class SecurityController {
     @Autowired
     private UserService userService;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+
     @Autowired
     public SecurityController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -50,7 +56,9 @@ public class SecurityController {
 
     @PostMapping("/signup")
     ResponseEntity<?> signUp(@RequestBody SignUpDTO signUpDTO){
+        logger.info("Trying to signUp.");
         if (userRepository.existsUserByLogin(signUpDTO.getLogin())){
+            logger.error("Incorrect Login");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Login");
         }
 
@@ -65,21 +73,58 @@ public class SecurityController {
         user.setRegistredDate(LocalDateTime.now());
         userRepository.save(user);
 
-        return ResponseEntity.ok("Signed Up with succes. User created!");
+        logger.info("Signed Up with success. User created.");
+        return ResponseEntity.ok("Signed Up with success. User created!");
     }
 
     @PostMapping("/signin")
     ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO) throws ChangeSetPersister.NotFoundException {
-        Authentication authentication = null;
+        Authentication authentication;
+
+        logger.info("Trying to authenticate.");
 
         try{
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getLogin(), signInDTO.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            logger.error("Incorrect password.");return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        UserDTO user = userService.findByLogin(signInDTO.getLogin());
+        userService.updateLastSeenDate(signInDTO.getLogin());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok(HttpStatus.OK);
+
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
+        return ResponseEntity.ok("User " + signInDTO.getLogin() + " successfully authenticated.");
     }
+
+    @PostMapping("/logout")
+    ResponseEntity<?> logOut(HttpServletRequest request){
+        logger.info("Trying to logout.");
+        try {
+            HttpSession session = request.getSession();
+            session.invalidate();
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(null);
+            logger.info("Logout successful.");
+            return ResponseEntity.ok("Logout successful.");
+        } catch (Exception e) {
+            logger.error("Cannot logout." + e);
+            return ResponseEntity.status(500).body("Error during logout");
+        }
+    }
+
+//    @Secured("ROLE_ADMIN")
+//    @GetMapping("/users")
+//    public ResponseEntity<List<UserDTO>> getAuthenticatedUsers() {
+//        logger.info("Trying to send info about all authenticated users.");
+//        try {
+//            logger.info("Sent info about all authenticated users.");
+//            return ResponseEntity.ok(authenticatedUsers);
+//        } catch (Exception e) {
+//            logger.error("Error retrieving authenticated users.", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 
 }

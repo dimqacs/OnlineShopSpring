@@ -72,4 +72,14 @@ public class PurchaseService {
         }
     }
 
+    public void deleteById(Long id){
+        Optional<Purchase> purchase = purchaseRepository.findById(id);
+
+        if (purchase.isPresent()) {
+            purchaseRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Purchase not found with ID: " + id);
+        }
+    }
+
 }

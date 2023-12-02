@@ -1,5 +1,6 @@
 package com.demo.app.controller;
 
+import com.demo.app.domain.User;
 import com.demo.app.model.UserDTO;
 import com.demo.app.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -10,14 +11,23 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
+@EnableGlobalAuthentication
 public class UserController {
 
     private UserService userService;
@@ -26,7 +36,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers(){
         try {
-            logger.info("Sent info about all users");
+            logger.info("Sending info about all users");
             return ResponseEntity.ok(userService.findAll());
         } catch (Exception e) {
             logger.error("Error while sending all users, ERROR - ", e);
@@ -37,6 +47,9 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable final Long id){
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+            authorities.forEach(authority -> System.out.println("User has authority: " + authority.getAuthority()));
             logger.info("Sent info about user with id " + id);
             return ResponseEntity.ok(userService.findById(id));
         } catch (ChangeSetPersister.NotFoundException e) {
@@ -72,13 +85,12 @@ public class UserController {
     public ResponseEntity<Object> updateUserStatus(@PathVariable final Long id , @RequestBody @Validated final UserDTO userDTO){
         try {
             logger.info("Trying to update status for user with id " + id);
-            userService.update(id, userDTO);
+            userService.updateRole(id, userDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (EntityNotFoundException e){
             logger.error("Error while updating status for user with id " + id + ", ERROR - ", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
 
 }

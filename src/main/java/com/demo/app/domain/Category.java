@@ -14,6 +14,6 @@ public class Category {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String name;
 }

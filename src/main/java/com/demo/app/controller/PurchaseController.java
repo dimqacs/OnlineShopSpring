@@ -47,16 +47,16 @@ public class PurchaseController {
         }
     }
 
-    @PostMapping("/add/{id}")
-    public ResponseEntity<Object> createPurchase(@PathVariable final Long id){
-            try {
-                logger.info("Trying to create purchase from user with id " + id);
-                purchaseService.createPurchase(id);
-                return new ResponseEntity<>(HttpStatus.CREATED);
-            } catch (Exception e){
-                logger.error("Error while creating purchase from user with id " + id + ", ERROR - ", e);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-    }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Object> deletePurchaseById(@PathVariable final Long id){
+        try {
+            logger.info("Deleting purchase with id " + id);
+            purchaseService.deleteById(id);
+            return ResponseEntity.ok("Purchase with id " + id + " was successfully deleted.");
+        } catch (EntityNotFoundException e){
+            logger.error("Error while deleting purchase with id " + id + ", ERROR - ", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }

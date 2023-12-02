@@ -16,30 +16,31 @@ public class User {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String surname;
 
     private Integer age;
 
-    @Column(nullable = false, updatable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String login;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String role;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime registredDate;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime lastSeenDate;
 
     public User (){
-        this.role = "user";
+        this.role = "USER";
         this.lastSeenDate = LocalDateTime.now();
     }
 }

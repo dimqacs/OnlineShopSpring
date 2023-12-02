@@ -14,10 +14,10 @@ public class PurchaseItem {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Integer count;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Float totalPrice;
 
     @ManyToOne(fetch = FetchType.EAGER)
