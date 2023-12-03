@@ -2,7 +2,6 @@ package com.demo.app.service;
 
 import com.demo.app.controller.UserController;
 import com.demo.app.domain.Category;
-import com.demo.app.domain.Product;
 import com.demo.app.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -22,7 +21,7 @@ public class CategoryService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
         Optional<Category> category = categoryRepository.findById(id);
 
         if (category.isPresent()) {
@@ -37,6 +36,7 @@ public class CategoryService {
 
         newCategory.setName(category.getName());
         categoryRepository.save(newCategory);
+
         logger.info("Category with name " + category.getName() + " successfully created.");
     }
 }

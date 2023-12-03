@@ -29,10 +29,10 @@ public class Product {
     private Integer count;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shipper_id")
+    @JoinColumn(name = "shipper_id", nullable = false)
     private Shipper shipper;
 }

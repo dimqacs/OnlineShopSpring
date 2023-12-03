@@ -6,6 +6,7 @@ import com.demo.app.model.UserDetailsImpl;
 import com.demo.app.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,15 +20,12 @@ import java.util.Optional;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    private UserDTO mapToDTO(final User user, final UserDTO userDTO){
+    private UserDTO mapToDTO(final User user, final UserDTO userDTO) {
         userDTO.setId(user.getId());
         userDTO.setName(user.getName());
         userDTO.setSurname(user.getSurname());
@@ -48,12 +46,12 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO findByLogin(String login) throws ChangeSetPersister.NotFoundException {
-        final User user = userRepository.findByLogin(login);
-        return mapToDTO(user, new UserDTO());
+        final Optional<User> optionalUser = userRepository.findByLogin(login);
+        return mapToDTO(optionalUser.get(), new UserDTO());
     }
 
 
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
         Optional<User> user = userRepository.findById(id);
 
         if (user.isPresent()) {
@@ -63,15 +61,14 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void updateRole(Long id, UserDTO userDTO) {
-        Optional<User> optionalUser = userRepository.findById(id);
+    public void updateRole(String login, String role) {
+        Optional<User> optionalUser = userRepository.findByLogin(login);
 
-        if (userDTO.getRole() != null) {
-            User user = optionalUser.get();
-            user.setRole(userDTO.getRole());
-            userRepository.save(user);
+        if (optionalUser.isPresent()) {
+            optionalUser.get().setRole(role);
+            userRepository.save(optionalUser.get());
         } else {
-            throw new EntityNotFoundException("User not found with ID: " + id);
+            throw new EntityNotFoundException("User not found with login: " + login);
         }
     }
 
@@ -89,8 +86,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        final User user = userRepository.findByLogin(login);
-        return UserDetailsImpl.build(user);
+        final Optional<User> optionalUser = userRepository.findByLogin(login);
+        return UserDetailsImpl.build(optionalUser.get());
     }
 
 

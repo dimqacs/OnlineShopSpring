@@ -10,5 +10,4 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories("com.demo.app.repository")
 @EnableTransactionManagement
 public class DomainConfig {
-
 }

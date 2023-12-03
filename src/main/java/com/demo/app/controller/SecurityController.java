@@ -25,9 +25,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,6 +51,7 @@ public class SecurityController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    private final List<UserDTO> authenticatedUsers = new ArrayList<>();
 
     @Autowired
     public SecurityController(@Qualifier("authenticationManager") AuthenticationManager authenticationManager) {
@@ -55,9 +59,9 @@ public class SecurityController {
     }
 
     @PostMapping("/signup")
-    ResponseEntity<?> signUp(@RequestBody SignUpDTO signUpDTO){
+    ResponseEntity<?> signUp(@RequestBody SignUpDTO signUpDTO) {
         logger.info("Trying to signUp.");
-        if (userRepository.existsUserByLogin(signUpDTO.getLogin())){
+        if (userRepository.existsUserByLogin(signUpDTO.getLogin())) {
             logger.error("Incorrect Login");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Login");
         }
@@ -78,30 +82,37 @@ public class SecurityController {
     }
 
     @PostMapping("/signin")
-    ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO) throws ChangeSetPersister.NotFoundException {
-        Authentication authentication;
+    ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO, HttpServletRequest request) throws ChangeSetPersister.NotFoundException {
+        Authentication authentication = null;
 
         logger.info("Trying to authenticate.");
 
-        try{
+        try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getLogin(), signInDTO.getPassword()));
         } catch (BadCredentialsException e) {
-            logger.error("Incorrect password.");return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            logger.error("Incorrect password.");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
         UserDTO user = userService.findByLogin(signInDTO.getLogin());
         userService.updateLastSeenDate(signInDTO.getLogin());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        authenticatedUsers.add(user);
 
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(authentication);
+        HttpSession session = request.getSession(true);
+        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+
         return ResponseEntity.ok("User " + signInDTO.getLogin() + " successfully authenticated.");
     }
 
     @PostMapping("/logout")
-    ResponseEntity<?> logOut(HttpServletRequest request){
+    ResponseEntity<?> logOut(HttpServletRequest request) {
         logger.info("Trying to logout.");
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            authenticatedUsers.removeIf(userDTO -> userDTO.getLogin().equals(authentication.getName()));
             HttpSession session = request.getSession();
             session.invalidate();
             SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -114,17 +125,17 @@ public class SecurityController {
         }
     }
 
-//    @Secured("ROLE_ADMIN")
-//    @GetMapping("/users")
-//    public ResponseEntity<List<UserDTO>> getAuthenticatedUsers() {
-//        logger.info("Trying to send info about all authenticated users.");
-//        try {
-//            logger.info("Sent info about all authenticated users.");
-//            return ResponseEntity.ok(authenticatedUsers);
-//        } catch (Exception e) {
-//            logger.error("Error retrieving authenticated users.", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDTO>> getAuthenticatedUsers() {
+        logger.info("Trying to send info about all authenticated users.");
+        try {
+            logger.info("Sent info about all authenticated users.");
+            return ResponseEntity.ok(authenticatedUsers);
+        } catch (Exception e) {
+            logger.error("Error retrieving authenticated users.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

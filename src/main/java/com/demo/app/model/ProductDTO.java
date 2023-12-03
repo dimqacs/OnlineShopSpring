@@ -1,13 +1,8 @@
 package com.demo.app.model;
 
-import com.demo.app.domain.Category;
-import com.demo.app.domain.Shipper;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ProductDTO {
     private Long id;
 

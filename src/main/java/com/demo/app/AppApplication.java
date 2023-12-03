@@ -7,9 +7,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @SpringBootApplication
 public class AppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AppApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(AppApplication.class, args);
+    }
 
 }
 
@@ -25,11 +25,14 @@ Delete an Order - done!
 Delete a Product - done!
 Delete a Shipper - done!
 Delete a Category - done!
-Get All Orders by Status -
+Get All Orders by Status - done!
 Create a Category - done!
-Insert a new Product -
-Add product to Bag -
-Command Order -
+Insert a new Product - done!
+Command Order - done!
 Create User - done!
-Spring Security - done|
+Spring Security - done!
+Unit testing -
+Verify needed functions - done!
+Authenticated users - done!
+Refactor loggers and response entity -
  */

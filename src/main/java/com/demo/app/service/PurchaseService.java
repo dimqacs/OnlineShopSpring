@@ -1,21 +1,34 @@
 package com.demo.app.service;
 
+import com.demo.app.controller.UserController;
+
 import com.demo.app.domain.Product;
 import com.demo.app.domain.Purchase;
+
+import com.demo.app.domain.PurchaseItem;
 import com.demo.app.domain.User;
-import com.demo.app.model.ProductDTO;
 import com.demo.app.model.PurchaseDTO;
-import com.demo.app.model.UserDTO;
+
+import com.demo.app.model.PurchaseItemDTO;
+import com.demo.app.model.PurchaseRequest;
+import com.demo.app.repository.ProductRepository;
+import com.demo.app.repository.PurchaseItemRepository;
 import com.demo.app.repository.PurchaseRepository;
+
 import com.demo.app.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @Transactional
@@ -23,9 +36,16 @@ import java.util.Optional;
 public class PurchaseService {
 
     private final PurchaseRepository purchaseRepository;
+
     private final UserRepository userRepository;
 
-    private PurchaseDTO mapToDTO(final Purchase purchase, final PurchaseDTO purchaseDTO){
+    private final PurchaseItemRepository purchaseItemRepository;
+
+    private final ProductRepository productRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    private PurchaseDTO mapToDTO(final Purchase purchase, final PurchaseDTO purchaseDTO) {
         purchaseDTO.setId(purchase.getId());
         purchaseDTO.setStatus(purchase.getStatus());
         purchaseDTO.setTotal(purchase.getTotal());
@@ -35,10 +55,6 @@ public class PurchaseService {
         purchaseDTO.setUserLogin(purchase.getUser().getLogin());
         purchaseDTO.setUserAge(purchase.getUser().getAge());
         return purchaseDTO;
-    }
-
-    private LocalDateTime createDate(){
-        return LocalDateTime.now();
     }
 
     public PurchaseDTO findById(Long id) throws ChangeSetPersister.NotFoundException {
@@ -59,20 +75,7 @@ public class PurchaseService {
         }
     }
 
-    public void createPurchase(Long id){
-        Optional<User> user = userRepository.findById(id);
-
-        if(user.isPresent()){
-            Purchase purchase = new Purchase();
-            purchase.setCreatedDate(createDate());
-            purchase.setUser(user.get());
-            purchaseRepository.save(purchase);
-        } else {
-            throw new EntityNotFoundException("User not found with ID: " + id);
-        }
-    }
-
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
         Optional<Purchase> purchase = purchaseRepository.findById(id);
 
         if (purchase.isPresent()) {
@@ -82,4 +85,31 @@ public class PurchaseService {
         }
     }
 
+    public List<PurchaseDTO> findByStatus(PurchaseDTO purchaseDTO) {
+        List<Purchase> purchases = purchaseRepository.findAllByStatus(purchaseDTO.getStatus());
+        logger.info("Sent info about purchases with status " + purchaseDTO.getStatus());
+        return purchases.stream().map(purchase -> mapToDTO(purchase, new PurchaseDTO())).toList();
+    }
+
+    public void createPurchase(PurchaseRequest purchaseRequest, UserDetails userDetails) {
+
+        Optional<User> optionalUser = userRepository.findByLogin(userDetails.getUsername());
+
+        Purchase purchase = new Purchase();
+        purchase.setCreatedDate(LocalDateTime.now());
+        purchase.setUser(optionalUser.get());
+        purchase.setTotal(purchaseRequest.getPurchaseTotalPrice());
+        purchaseRepository.save(purchase);
+
+        for (PurchaseItemDTO purchaseItemDTO : purchaseRequest.getPurchase()) {
+            PurchaseItem purchaseItem = new PurchaseItem();
+            purchaseItem.setCount(purchaseItemDTO.getCount());
+            purchaseItem.setTotalPrice(purchaseItemDTO.getTotalPrice());
+            purchaseItem.setPurchase(purchase);
+            Optional<Product> product = productRepository.findById(purchaseItemDTO.getId());
+            purchaseItem.setProduct(product.get());
+            purchaseItemRepository.save(purchaseItem);
+        }
+        logger.info("Purchase successfully created.");
+    }
 }
