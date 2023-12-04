@@ -4,6 +4,7 @@ import com.demo.app.controller.UserController;
 import com.demo.app.domain.Category;
 import com.demo.app.domain.Product;
 import com.demo.app.domain.Shipper;
+import com.demo.app.model.ProductCreateDTO;
 import com.demo.app.model.ProductDTO;
 import com.demo.app.model.ProductSmallDTO;
 import com.demo.app.repository.CategoryRepository;
@@ -71,18 +72,18 @@ public class ProductService {
         }
     }
 
-    public void createProduct(ProductDTO productDTO) {
+    public void createProduct(ProductCreateDTO productCreateDTO) {
         Product product = new Product();
 
-        product.setName(productDTO.getName());
-        product.setYearOfProduction(productDTO.getYearOfProduction());
-        product.setDetails(productDTO.getDetails());
-        product.setPrice(productDTO.getPrice());
-        product.setCount(productDTO.getCount());
-        Category category = categoryRepository.findByName(productDTO.getCategoryName());
-        product.setCategory(category);
-        Shipper shipper = shipperRepository.findByName(productDTO.getShipperName());
-        product.setShipper(shipper);
+        product.setName(productCreateDTO.getName());
+        product.setYearOfProduction(productCreateDTO.getYearOfProduction());
+        product.setDetails(productCreateDTO.getDetails());
+        product.setPrice(productCreateDTO.getPrice());
+        product.setCount(productCreateDTO.getCount());
+        Optional<Category> category = categoryRepository.findById(productCreateDTO.getCategoryId());
+        category.ifPresent(product::setCategory);
+        Optional<Shipper> shipper = shipperRepository.findById(productCreateDTO.getShipperId());
+        shipper.ifPresent(product::setShipper);
         productRepository.save(product);
 
         logger.info("Product created.");

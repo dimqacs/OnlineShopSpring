@@ -16,10 +16,10 @@ public class Purchase {
     @Column(nullable = false, updatable = false)
     private Long id;
 
-    @Column(columnDefinition = "DEFAULT 'Not Delivered'")
+    @Column(nullable = false)
     private String status;
 
-    @Column(nullable = false, columnDefinition = "FLOAT DEFAULT 0.0")
+    @Column(nullable = false)
     private Float total;
 
     @Column(nullable = false, updatable = false)

@@ -11,11 +11,16 @@ public class ResponseDTO {
 
     private String message;
 
-    private LocalDateTime date;
+    private Object data;
 
-    public ResponseDTO(Integer status, String message, LocalDateTime date) {
+    public ResponseDTO(Integer status, String message, Object data) {
         this.status = status;
         this.message = message;
-        this.date = date;
+        this.data = data;
+    }
+
+    public ResponseDTO(Integer status, String message){
+        this.status = status;
+        this.message = message;
     }
 }

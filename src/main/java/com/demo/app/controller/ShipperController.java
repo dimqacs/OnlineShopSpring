@@ -26,10 +26,10 @@ public class ShipperController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getShipperById(@PathVariable final Long id) {
+    public ResponseEntity<ResponseDTO> getShipperById(@PathVariable final Long id) {
         logger.info("Trying to sent info about shipper with id " + id);
         try {
-            return ResponseEntity.ok(shipperService.findById(id));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about shipper.", shipperService.findById(id)));
         } catch (ChangeSetPersister.NotFoundException e) {
             logger.error("Error while sending info about shipper with id " + id + ", ERROR - ", e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Shipper with id " + id + " not found.", LocalDateTime.now()));

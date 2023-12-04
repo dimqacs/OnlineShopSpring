@@ -1,6 +1,7 @@
 package com.demo.app.controller;
 
 import com.demo.app.domain.User;
+import com.demo.app.model.ResponseDTO;
 import com.demo.app.model.SignInDTO;
 import com.demo.app.model.SignUpDTO;
 import com.demo.app.model.UserDTO;
@@ -59,11 +60,11 @@ public class SecurityController {
     }
 
     @PostMapping("/signup")
-    ResponseEntity<?> signUp(@RequestBody SignUpDTO signUpDTO) {
+    ResponseEntity<ResponseDTO> signUp(@RequestBody SignUpDTO signUpDTO) {
         logger.info("Trying to signUp.");
         if (userRepository.existsUserByLogin(signUpDTO.getLogin())) {
-            logger.error("Incorrect Login");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Login");
+            logger.error("Login already exists. Can't create user.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Login already exist. Can't create user"));
         }
 
         String hashed = passwordEncoder.encode(signUpDTO.getPassword());
@@ -78,11 +79,11 @@ public class SecurityController {
         userRepository.save(user);
 
         logger.info("Signed Up with success. User created.");
-        return ResponseEntity.ok("Signed Up with success. User created!");
+        return ResponseEntity.ok(new ResponseDTO(HttpStatus.CREATED.value(), "User successfully created."));
     }
 
     @PostMapping("/signin")
-    ResponseEntity<?> signIn(@RequestBody SignInDTO signInDTO, HttpServletRequest request) throws ChangeSetPersister.NotFoundException {
+    ResponseEntity<ResponseDTO> signIn(@RequestBody SignInDTO signInDTO, HttpServletRequest request) throws ChangeSetPersister.NotFoundException {
         Authentication authentication = null;
 
         logger.info("Trying to authenticate.");
@@ -90,8 +91,8 @@ public class SecurityController {
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getLogin(), signInDTO.getPassword()));
         } catch (BadCredentialsException e) {
-            logger.error("Incorrect password.");
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            logger.error("Incorrect login or password, Error - ", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body( new ResponseDTO(HttpStatus.UNAUTHORIZED.value(), "Incorrect login or password"));
         }
 
         UserDTO user = userService.findByLogin(signInDTO.getLogin());
@@ -104,11 +105,13 @@ public class SecurityController {
         HttpSession session = request.getSession(true);
         session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
 
-        return ResponseEntity.ok("User " + signInDTO.getLogin() + " successfully authenticated.");
+        logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
+
+        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated."));
     }
 
     @PostMapping("/logout")
-    ResponseEntity<?> logOut(HttpServletRequest request) {
+    ResponseEntity<ResponseDTO> logOut(HttpServletRequest request) {
         logger.info("Trying to logout.");
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -117,24 +120,24 @@ public class SecurityController {
             session.invalidate();
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(null);
-            logger.info("Logout successful.");
-            return ResponseEntity.ok("Logout successful.");
+            logger.info("User " + authentication.getName() + " logged out successful.");
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + authentication.getName() + " logged out successful."));
         } catch (Exception e) {
             logger.error("Cannot logout." + e);
-            return ResponseEntity.status(500).body("Error during logout");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during logging out, Error -  \n" + e));
         }
     }
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAuthenticatedUsers() {
+    public ResponseEntity<ResponseDTO> getAuthenticatedUsers() {
         logger.info("Trying to send info about all authenticated users.");
         try {
             logger.info("Sent info about all authenticated users.");
-            return ResponseEntity.ok(authenticatedUsers);
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all authenticated users." ,authenticatedUsers));
         } catch (Exception e) {
             logger.error("Error retrieving authenticated users.", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during sending info about all authenticated users, Error -  \n" + e));
         }
     }
 

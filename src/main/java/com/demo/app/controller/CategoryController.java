@@ -28,13 +28,13 @@ public class CategoryController {
         logger.info("Trying to delete category with id " + id);
         try {
             categoryService.deleteById(id);
-            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Category with id " + id + " successfully deleted.", LocalDateTime.now()));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Category with id " + id + " successfully deleted."));
         } catch (EntityNotFoundException e) {
             logger.error("Error while deleting category with id " + id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Category with id " + id + " not found.", LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Category with id " + id + " not found."));
         } catch (Exception e) {
             logger.error("Error while deleting category with id " + id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during deletion for category with id " + id + ".", LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during deletion for category with id " + id + ". \n" + e));
         }
     }
 
@@ -43,10 +43,10 @@ public class CategoryController {
         logger.info("Trying to create category with name " + category.getName() + ".");
         try {
             categoryService.create(category);
-            return ResponseEntity.ok(new ResponseDTO(HttpStatus.CREATED.value(), "Category successfully created.", LocalDateTime.now()));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.CREATED.value(), "Category successfully created."));
         } catch (Exception e) {
             logger.error("Can't create category, Error - \n" + e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Can't create category, Error - \n" + e, LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Can't create category, Error - \n" + e));
         }
     }
 
