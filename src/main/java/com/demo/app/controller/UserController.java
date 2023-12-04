@@ -1,5 +1,6 @@
 package com.demo.app.controller;
 
+import com.demo.app.model.ResponseDTO;
 import com.demo.app.model.UserDTO;
 import com.demo.app.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,59 +27,68 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<ResponseDTO> getAllUsers() {
+        logger.info("Trying to send info about all users");
         try {
-            logger.info("Sending info about all users");
-            return ResponseEntity.ok(userService.findAll());
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all users", userService.findAll()));
         } catch (Exception e) {
-            logger.error("Error while sending all users, ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            logger.error("Error while sending info about all users, ERROR - ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about all users, ERROR - ", e));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable final Long id) {
+    public ResponseEntity<ResponseDTO> getUserById(@PathVariable final Long id) {
+        logger.info("Trying to sent info about user with id " + id);
         try {
-            logger.info("Sent info about user with id " + id);
-            return ResponseEntity.ok(userService.findById(id));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about user.", userService.findById(id)));
         } catch (ChangeSetPersister.NotFoundException e) {
-            logger.error("Error while sending info about user with id " + id + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            logger.error("User with id " + id + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "User with id " + id + " not found."));
+        } catch (Exception e) {
+            logger.error("Error while sending info about user with id " + id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about user with id " + id + ", ERROR - " + e));
         }
     }
 
     @GetMapping("/login/{login}")
-    public ResponseEntity<UserDTO> getUserByLogin(@PathVariable final String login) {
+    public ResponseEntity<ResponseDTO> getUserByLogin(@PathVariable final String login) {
+        logger.info("Trying to send info about user with login " + login);
         try {
-            logger.info("Sent info about user with login " + login);
-            return ResponseEntity.ok(userService.findByLogin(login));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about user.", userService.findByLogin(login)));
         } catch (ChangeSetPersister.NotFoundException e) {
-            logger.error("Error while sending info about user with login " + login + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            logger.error("User with login " + login + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "User with login " + login + " not found."));
+        } catch (Exception e) {
+            logger.error("Error while sending info about user with login " + login, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about user with login " + login + ", ERROR - " + e));
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Object> deleteUserById(@PathVariable final Long id) {
+    public ResponseEntity<ResponseDTO> deleteUserById(@PathVariable final Long id) {
+        logger.info("Trying to delete user with id " + id);
         try {
-            logger.info("Deleting user with id " + id);
             userService.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User with id " + id + " successfully deleted."));
         } catch (EntityNotFoundException e) {
-            logger.error("Error while deleting user with id " + id + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            logger.error("User with id " + id + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "User with id " + id + " not found."));
+        } catch (Exception e) {
+            logger.error("Error while deleting user with id " + id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during deletion for user with id " + id + "."));
         }
     }
 
     @PutMapping("/update/{login}")
-    public ResponseEntity<Object> updateUserRole(@PathVariable final String login, @RequestBody @Validated final UserDTO userDTO) {
+    public ResponseEntity<ResponseDTO> updateUserRole(@PathVariable final String login, @RequestBody @Validated final UserDTO userDTO) {
+        logger.info("Trying to update role for user with login " + login);
         try {
-            logger.info("Trying to update status for user with login " + login);
             userService.updateRole(login, userDTO.getRole());
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (EntityNotFoundException e) {
-            logger.error("Error while updating status for user with login " + login + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User's role with login " + login + " successfully updated."));
+            } catch (Exception e) {
+            logger.error("Error while updating role for user with login " + login, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while updating role for user with login " + login + ", error - \n" +  e));
         }
     }
 

@@ -60,6 +60,7 @@ public class PurchaseService {
     public PurchaseDTO findById(Long id) throws ChangeSetPersister.NotFoundException {
         final Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        logger.info("Purchase with id " + id + " was successfully send.");
         return mapToDTO(purchase, new PurchaseDTO());
     }
 
@@ -70,6 +71,7 @@ public class PurchaseService {
             Purchase purchase = optionalPurchase.get();
             purchase.setStatus(purchaseDTO.getStatus());
             purchaseRepository.save(purchase);
+            logger.info("Purchase's status for purchase with id " + id + " was successfully updated.");
         } else {
             throw new EntityNotFoundException("Purchase not found with ID: " + id);
         }
@@ -80,6 +82,7 @@ public class PurchaseService {
 
         if (purchase.isPresent()) {
             purchaseRepository.deleteById(id);
+            logger.info("Purchase with id " + id + " was successfully deleted.");
         } else {
             throw new EntityNotFoundException("Purchase not found with ID: " + id);
         }
@@ -87,29 +90,33 @@ public class PurchaseService {
 
     public List<PurchaseDTO> findByStatus(PurchaseDTO purchaseDTO) {
         List<Purchase> purchases = purchaseRepository.findAllByStatus(purchaseDTO.getStatus());
-        logger.info("Sent info about purchases with status " + purchaseDTO.getStatus());
+        logger.info("Sent info about all purchases with status " + purchaseDTO.getStatus() + ".");
         return purchases.stream().map(purchase -> mapToDTO(purchase, new PurchaseDTO())).toList();
     }
 
     public void createPurchase(PurchaseRequest purchaseRequest, UserDetails userDetails) {
 
-        Optional<User> optionalUser = userRepository.findByLogin(userDetails.getUsername());
+        try {
+            Optional<User> optionalUser = userRepository.findByLogin(userDetails.getUsername());
 
-        Purchase purchase = new Purchase();
-        purchase.setCreatedDate(LocalDateTime.now());
-        purchase.setUser(optionalUser.get());
-        purchase.setTotal(purchaseRequest.getPurchaseTotalPrice());
-        purchaseRepository.save(purchase);
+            Purchase purchase = new Purchase();
+            purchase.setCreatedDate(LocalDateTime.now());
+            purchase.setUser(optionalUser.get());
+            purchase.setTotal(purchaseRequest.getPurchaseTotalPrice());
+            purchaseRepository.save(purchase);
 
-        for (PurchaseItemDTO purchaseItemDTO : purchaseRequest.getPurchase()) {
-            PurchaseItem purchaseItem = new PurchaseItem();
-            purchaseItem.setCount(purchaseItemDTO.getCount());
-            purchaseItem.setTotalPrice(purchaseItemDTO.getTotalPrice());
-            purchaseItem.setPurchase(purchase);
-            Optional<Product> product = productRepository.findById(purchaseItemDTO.getId());
-            purchaseItem.setProduct(product.get());
-            purchaseItemRepository.save(purchaseItem);
+            for (PurchaseItemDTO purchaseItemDTO : purchaseRequest.getPurchase()) {
+                PurchaseItem purchaseItem = new PurchaseItem();
+                purchaseItem.setCount(purchaseItemDTO.getCount());
+                purchaseItem.setTotalPrice(purchaseItemDTO.getTotalPrice());
+                purchaseItem.setPurchase(purchase);
+                Optional<Product> product = productRepository.findById(purchaseItemDTO.getId());
+                purchaseItem.setProduct(product.get());
+                purchaseItemRepository.save(purchaseItem);
+            }
+            logger.info("Purchase successfully created.");
+        } catch (Exception e) {
+                logger.error("Can't create purchase, error - ", e);
         }
-        logger.info("Purchase successfully created.");
     }
 }

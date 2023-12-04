@@ -1,5 +1,6 @@
 package com.demo.app.controller;
 
+import com.demo.app.config.JwtCore;
 import com.demo.app.domain.User;
 import com.demo.app.model.ResponseDTO;
 import com.demo.app.model.SignInDTO;
@@ -43,6 +44,9 @@ public class SecurityController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtCore jwtCore;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -96,18 +100,16 @@ public class SecurityController {
         }
 
         UserDTO user = userService.findByLogin(signInDTO.getLogin());
-        userService.updateLastSeenDate(signInDTO.getLogin());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         authenticatedUsers.add(user);
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(authentication);
-        HttpSession session = request.getSession(true);
-        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+        userService.updateLastSeenDate(signInDTO.getLogin());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtCore.generateToken(authentication);
 
         logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
 
-        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated."));
+        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated.", jwt));
     }
 
     @PostMapping("/logout")

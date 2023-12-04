@@ -13,8 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping(value = "/shipper", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
@@ -31,11 +29,11 @@ public class ShipperController {
         try {
             return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about shipper.", shipperService.findById(id)));
         } catch (ChangeSetPersister.NotFoundException e) {
-            logger.error("Error while sending info about shipper with id " + id + ", ERROR - ", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Shipper with id " + id + " not found.", LocalDateTime.now()));
+            logger.error("Shipper with id " + id + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Shipper with id " + id + " not found."));
         } catch (Exception e) {
             logger.error("Error while sending info about shipper with id " + id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about shipper with id " + id + ", ERROR - " + e, LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about shipper with id " + id + ", ERROR - " + e));
         }
     }
 
@@ -44,13 +42,13 @@ public class ShipperController {
         logger.info("Trying to delete shipper with id " + id);
         try {
             shipperService.deleteById(id);
-            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Shipper with id " + id + " successfully deleted.", LocalDateTime.now()));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Shipper with id " + id + " successfully deleted."));
         } catch (EntityNotFoundException e) {
-            logger.error("Error while deleting shipper with id " + id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Shipper with id " + id + " not found.", LocalDateTime.now()));
+            logger.error("Shipper with id " + id + " not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseDTO(HttpStatus.NOT_FOUND.value(), "Shipper with id " + id + " not found."));
         } catch (Exception e) {
             logger.error("Error while deleting shipper with id " + id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during deletion for shipper with id " + id + ".", LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during deletion for shipper with id " + id + "."));
         }
     }
 
@@ -59,10 +57,10 @@ public class ShipperController {
         logger.info("Trying to create a shipper.");
         try {
             shipperService.createShipper(shipper);
-            return ResponseEntity.ok(new ResponseDTO(HttpStatus.CREATED.value(), "Shipper successfully created.", LocalDateTime.now()));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.CREATED.value(), "Shipper successfully created."));
         } catch (Exception e) {
             logger.error("Can't create shipper, Error - \n" + e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Can't create shipper, Error - \n" + e, LocalDateTime.now()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Can't create shipper, Error - \n" + e));
         }
     }
 }

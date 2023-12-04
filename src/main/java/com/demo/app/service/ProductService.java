@@ -59,6 +59,7 @@ public class ProductService {
     public ProductDTO findById(Long id) throws ChangeSetPersister.NotFoundException {
         final Product product = productRepository.findById(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        logger.info("Info about product with id " + id + " was successfully send.");
         return mapToDTO(product, new ProductDTO());
     }
 
@@ -67,42 +68,51 @@ public class ProductService {
 
         if (product.isPresent()) {
             productRepository.deleteById(id);
+            logger.info("Product with id " + id + " was successfully deleted.");
         } else {
+            logger.error("Can't delete product with id " + id + " .");
             throw new EntityNotFoundException("Product not found with ID: " + id);
         }
     }
 
     public void createProduct(ProductCreateDTO productCreateDTO) {
-        Product product = new Product();
+        try {
+            Product product = new Product();
 
-        product.setName(productCreateDTO.getName());
-        product.setYearOfProduction(productCreateDTO.getYearOfProduction());
-        product.setDetails(productCreateDTO.getDetails());
-        product.setPrice(productCreateDTO.getPrice());
-        product.setCount(productCreateDTO.getCount());
-        Optional<Category> category = categoryRepository.findById(productCreateDTO.getCategoryId());
-        category.ifPresent(product::setCategory);
-        Optional<Shipper> shipper = shipperRepository.findById(productCreateDTO.getShipperId());
-        shipper.ifPresent(product::setShipper);
-        productRepository.save(product);
+            product.setName(productCreateDTO.getName());
+            product.setYearOfProduction(productCreateDTO.getYearOfProduction());
+            product.setDetails(productCreateDTO.getDetails());
+            product.setPrice(productCreateDTO.getPrice());
+            product.setCount(productCreateDTO.getCount());
+            Optional<Category> category = categoryRepository.findById(productCreateDTO.getCategoryId());
+            category.ifPresent(product::setCategory);
+            Optional<Shipper> shipper = shipperRepository.findById(productCreateDTO.getShipperId());
+            shipper.ifPresent(product::setShipper);
+            productRepository.save(product);
 
-        logger.info("Product created.");
+            logger.info("Product successfully created.");
+        } catch (Exception e){
+            logger.error("Can't create product. Error - ", e);
+        }
     }
 
     public List<ProductDTO> findAll() {
         final List<Product> products = productRepository.findAll(Sort.by("id"));
+        logger.info("Info about all products was successfully send.");
         return products.stream().map(product -> mapToDTO(product, new ProductDTO())).toList();
     }
 
 
-    public ProductDTO findByName(String name) throws ChangeSetPersister.NotFoundException {
+    public ProductDTO findByName(String name) {
         final Optional<Product> product = productRepository.findByName(name);
+        logger.info("Info about product with name " + name + " was successfully send.");
         return mapToDTO(product.get(), new ProductDTO());
     }
 
 
     public List<ProductSmallDTO> findAllProducts(){
         List<Product> products = productRepository.findAll(Sort.by("id"));
+        logger.info("Info about all products was successfully send.");
         return products.stream().map(product -> mapToSmallDTO(product, new ProductSmallDTO())).toList();
     }
 

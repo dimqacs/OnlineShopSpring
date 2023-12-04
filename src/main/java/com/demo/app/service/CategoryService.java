@@ -26,7 +26,9 @@ public class CategoryService {
 
         if (category.isPresent()) {
             categoryRepository.deleteById(id);
+            logger.info("Category with id " + id + " successfully deleted.");
         } else {
+            logger.error("Can't delete category with id " + id + ".");
             throw new EntityNotFoundException("Product not found with ID: " + id);
         }
     }
