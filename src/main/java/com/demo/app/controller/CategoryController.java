@@ -50,4 +50,15 @@ public class CategoryController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<ResponseDTO> getAllCategories() {
+        logger.info("Trying to send info about all categories.");
+        try {
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all categories.", categoryService.findAll()));
+        } catch (Exception e) {
+            logger.error("Error while sending info about all categories, ERROR - ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about all categories, ERROR - ", e));
+        }
+    }
+
 }

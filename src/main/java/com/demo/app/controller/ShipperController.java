@@ -37,6 +37,17 @@ public class ShipperController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<ResponseDTO> getAllShippers() {
+        logger.info("Trying to send info about all shippers.");
+        try {
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all shippers.", shipperService.findAll()));
+        } catch (Exception e) {
+            logger.error("Error while sending info about all shippers.", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error while sending info about all shippers, error - " + e));
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseDTO> deleteShipperById(@PathVariable final Long id) {
         logger.info("Trying to delete shipper with id " + id);

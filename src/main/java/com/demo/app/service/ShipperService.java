@@ -2,6 +2,9 @@ package com.demo.app.service;
 
 import com.demo.app.controller.UserController;
 import com.demo.app.domain.Shipper;
+import com.demo.app.domain.User;
+import com.demo.app.model.ShipperDTO;
+import com.demo.app.model.UserDTO;
 import com.demo.app.repository.ShipperRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -11,7 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -22,6 +28,11 @@ public class ShipperService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    private ShipperDTO mapToDTO(final Shipper shipper, final ShipperDTO shipperDTO) {
+        shipperDTO.setId(shipper.getId());
+        shipperDTO.setName(shipperDTO.getName());
+        return shipperDTO;
+    }
 
     public Shipper findById(Long id) throws ChangeSetPersister.NotFoundException {
             Shipper shipper = shipperRepository.findById(id)
@@ -51,5 +62,11 @@ public class ShipperService {
         } catch(DataIntegrityViolationException e) {
             throw new RuntimeException("Error while creating shipper, Error - ",e);
         }
+    }
+
+    public List<ShipperDTO> findAll(){
+        List<Shipper> shippers = shipperRepository.findAll(Sort.by("id"));
+        logger.info("Info about all shippers was successfully send.");
+        return shippers.stream().map(shipper -> mapToDTO(shipper, new ShipperDTO())).toList();
     }
 }
