@@ -22,7 +22,7 @@ public class ProductController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity<ResponseDTO> deleteProductById(@PathVariable final Long id) {
         logger.info("Trying to delete product with id " + id);
         try {

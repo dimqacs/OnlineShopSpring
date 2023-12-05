@@ -20,7 +20,7 @@ public class PurchaseItem {
     @Column(nullable = false)
     private Float totalPrice;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
 

@@ -2,10 +2,7 @@ package com.demo.app.controller;
 
 import com.demo.app.config.JwtCore;
 import com.demo.app.domain.User;
-import com.demo.app.model.ResponseDTO;
-import com.demo.app.model.SignInDTO;
-import com.demo.app.model.SignUpDTO;
-import com.demo.app.model.UserDTO;
+import com.demo.app.model.*;
 import com.demo.app.repository.UserRepository;
 import com.demo.app.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,7 +66,7 @@ public class SecurityController {
         logger.info("Trying to signUp.");
         if (userRepository.existsUserByLogin(signUpDTO.getLogin())) {
             logger.error("Login already exists. Can't create user.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Login already exist. Can't create user"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDTO(HttpStatus.BAD_REQUEST.value(), "Login already exist. Can't create user"));
         }
 
         String hashed = passwordEncoder.encode(signUpDTO.getPassword());
@@ -96,7 +94,7 @@ public class SecurityController {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDTO.getLogin(), signInDTO.getPassword()));
         } catch (BadCredentialsException e) {
             logger.error("Incorrect login or password, Error - ", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body( new ResponseDTO(HttpStatus.UNAUTHORIZED.value(), "Incorrect login or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseDTO(HttpStatus.UNAUTHORIZED.value(), "Incorrect login or password"));
         }
 
         UserDTO user = userService.findByLogin(signInDTO.getLogin());
@@ -104,12 +102,12 @@ public class SecurityController {
 
         userService.updateLastSeenDate(signInDTO.getLogin());
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtCore.generateToken(authentication);
+        UserDetails userDetails = userService.loadUserByUsername(signInDTO.getLogin());
+        String token = jwtCore.generateToken(userDetails);
 
         logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
 
-        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated.", jwt));
+        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated.", token));
     }
 
     @PostMapping("/logout")
@@ -122,6 +120,7 @@ public class SecurityController {
             session.invalidate();
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(null);
+
             logger.info("User " + authentication.getName() + " logged out successful.");
             return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + authentication.getName() + " logged out successful."));
         } catch (Exception e) {
@@ -136,7 +135,7 @@ public class SecurityController {
         logger.info("Trying to send info about all authenticated users.");
         try {
             logger.info("Sent info about all authenticated users.");
-            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all authenticated users." ,authenticatedUsers));
+            return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "Info about all authenticated users.", authenticatedUsers));
         } catch (Exception e) {
             logger.error("Error retrieving authenticated users.", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error occurred during sending info about all authenticated users, Error -  \n" + e));

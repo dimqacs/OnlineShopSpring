@@ -25,7 +25,7 @@ public class Purchase {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

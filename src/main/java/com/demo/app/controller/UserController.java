@@ -65,7 +65,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity<ResponseDTO> deleteUserById(@PathVariable final Long id) {
         logger.info("Trying to delete user with id " + id);
         try {
@@ -80,7 +80,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/update/{login}")
+    @PostMapping("/update/{login}")
     public ResponseEntity<ResponseDTO> updateUserRole(@PathVariable final String login, @RequestBody @Validated final UserDTO userDTO) {
         logger.info("Trying to update role for user with login " + login);
         try {

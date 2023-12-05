@@ -30,7 +30,7 @@ public class ShipperService {
 
     private ShipperDTO mapToDTO(final Shipper shipper, final ShipperDTO shipperDTO) {
         shipperDTO.setId(shipper.getId());
-        shipperDTO.setName(shipperDTO.getName());
+        shipperDTO.setName(shipper.getName());
         return shipperDTO;
     }
 

@@ -39,7 +39,7 @@ public class PurchaseController {
         }
     }
 
-    @PutMapping("/update/{id}")
+    @PostMapping("/update/{id}")
     public ResponseEntity<ResponseDTO> updatePurchaseStatus(@PathVariable final Long id, @RequestBody @Validated final PurchaseDTO purchaseDTO) {
         logger.info("Trying to update status for purchase with id " + id);
         try {
@@ -54,7 +54,7 @@ public class PurchaseController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity<ResponseDTO> deletePurchaseById(@PathVariable final Long id) {
         logger.info("Trying to delete purchase with id " + id);
         try {
@@ -69,7 +69,7 @@ public class PurchaseController {
         }
     }
 
-    @GetMapping("/get/status")
+    @PostMapping("/get/status")
     public ResponseEntity<ResponseDTO> getPurchaseByStatus(@RequestBody @Validated final PurchaseDTO purchaseDTO) {
         logger.info("Trying to give info about all purchases with status " + purchaseDTO.getStatus() + ".");
         try {

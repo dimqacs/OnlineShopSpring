@@ -23,7 +23,7 @@ public class CategoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity<ResponseDTO> deleteCategoryById(@PathVariable final Long id) {
         logger.info("Trying to delete category with id " + id);
         try {

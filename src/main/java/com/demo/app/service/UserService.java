@@ -105,5 +105,4 @@ public class UserService implements UserDetailsService {
         return UserDetailsImpl.build(optionalUser.get());
     }
 
-
 }
