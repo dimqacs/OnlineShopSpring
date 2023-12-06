@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 
-
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class JwtCore {
     private String secret;
 
     @Value("${testing.app.lifetime}")
-    private Duration lifetime;
+    private Duration ttl;
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
@@ -35,7 +34,7 @@ public class JwtCore {
         claims.put("roles", rolesList);
 
         Date issuedDate = new Date();
-        Date expiredDate = new Date(issuedDate.getTime() + lifetime.toMillis());
+        Date expiredDate = new Date(issuedDate.getTime() + ttl.toMillis());
 
         return Jwts.builder()
                 .setClaims(claims)

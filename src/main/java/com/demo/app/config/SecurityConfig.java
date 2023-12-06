@@ -77,10 +77,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**", "/").permitAll()
                         .requestMatchers("/user/**", "/category/**", "/purchase/**", "/shipper/**", "/product/**").hasAuthority("ADMIN")
-                        .requestMatchers("/ue").hasAnyAuthority("USER", "ADMIN")
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")

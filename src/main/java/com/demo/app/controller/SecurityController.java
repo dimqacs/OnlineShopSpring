@@ -30,8 +30,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
-
 @RestController
 @RequestMapping("/auth")
 @AllArgsConstructor
@@ -105,9 +103,10 @@ public class SecurityController {
         UserDetails userDetails = userService.loadUserByUsername(signInDTO.getLogin());
         String token = jwtCore.generateToken(userDetails);
 
+        SignInResponse signInResponse = new SignInResponse(token, user.getId(), user.getRole());
         logger.info("User " + signInDTO.getLogin() + " successfully authenticated.");
 
-        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated.", token));
+        return ResponseEntity.ok(new ResponseDTO(HttpStatus.OK.value(), "User " + signInDTO.getLogin() + " successfully authenticated.", signInResponse));
     }
 
     @PostMapping("/logout")
